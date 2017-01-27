@@ -68,4 +68,6 @@ featureNames <- gsub("\\)", "", featureNames)
 names(testData)     <- c("subject", featureNames, "activity")
 names(trainData)    <- c("subject", featureNames, "activity")
 
+#merge the data sets
+allData <- rbind(testData, trainData)
 
