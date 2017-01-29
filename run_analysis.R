@@ -56,12 +56,8 @@ if(!file.exists("./allData.rds")) {
     featureNames    <- read.table("./data/UCI HAR Dataset/features.txt")
     
     featureNames <- t(featureNames[2]) %>% tolower()
-    
     featureNames <- gsub("-", "", featureNames)
     featureNames <- gsub(",", "", featureNames)
-    #featureNames <- gsub("\\(", "", featureNames)
-    #featureNames <- gsub("\\)", "", featureNames)
-    
     
     names(testData)     <- c("subject", featureNames, "activityID")
     names(trainData)    <- c("subject", featureNames, "activityID")
@@ -69,12 +65,10 @@ if(!file.exists("./allData.rds")) {
     #merge the data sets
     allData <- rbind(testData, trainData)
     
-    # make sure all names are unique
-    #validNames <- make.names(names=names(allData), unique=TRUE, allow_ = TRUE)
-    #names(allData) <- allData
-    
     # Save the data object
     saveRDS(allData, "allData.rds")
+    
+    # clean up the workspace
     rm(testData, trainData, featureNames, dataName, fileNames, iType, validNames, folder)
 }
 
@@ -91,9 +85,9 @@ meanAndStd <- allData %>%
     # remove duplicated columns by name
     subset(., select=which(!duplicated(names(.)))) %>% 
     # find row mean() or std() which are the computed estimates from '/data/features_info.txt'
-    select( subject, activity, matches("mean\\(\\)|std\\(\\)")) 
+    select( subject, activityID, matches("mean\\(\\)|std\\(\\)")) 
 
-saveRDS(allData, "allData.rds")
+saveRDS(meanAndStd, "meanAndStd.rds")
 
 
 
@@ -103,4 +97,4 @@ names(activityLabels)    <- c("activityID", "activity")
 
 meanAndStd <- merge(meanAndStd, activityLabels, by="activityID")
 
-
+str(meanAndStd)
