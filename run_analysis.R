@@ -129,7 +129,7 @@ names(tidyData) <- gsub("_", "-", names(tidyData))
 
 
 # export as tab table
-write.table(tidyData, file = "tidyData.txt", sep = "\t")
+write.table(tidyData, file = "tidyData.txt", sep = "\t", row.names = FALSE)
 
 ## dump SessionInfo to markdown
 pander(sessionInfo(), compact = FALSE)
