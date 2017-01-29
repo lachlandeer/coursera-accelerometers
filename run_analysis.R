@@ -87,9 +87,6 @@ meanAndStd <- allData %>%
     # find row mean() or std() which are the computed estimates from '/data/features_info.txt'
     select( subject, activityID, matches("mean\\(\\)|std\\(\\)")) 
 
-saveRDS(meanAndStd, "meanAndStd.rds")
-
-
 
 # Load activity labels + features
 activityLabels  <- read.table("./data/UCI HAR Dataset/activity_labels.txt")
@@ -97,4 +94,10 @@ names(activityLabels)    <- c("activityID", "activity")
 
 meanAndStd <- merge(meanAndStd, activityLabels, by="activityID")
 
-str(meanAndStd)
+##
+meanAndStd <- meanAndStd  %>%
+    select(subject, activity, everything()) %>%
+    select(-activityID) %>%
+    arrange(subject, activity)
+
+saveRDS(meanAndStd, "meanAndStd.rds")
