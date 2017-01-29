@@ -8,6 +8,8 @@
 
 library(dplyr)
 library(readr)
+library(pander)
+
 
 
 ## 0. Download the data ##
@@ -129,3 +131,5 @@ names(tidyData) <- gsub("_", "-", names(tidyData))
 # export as tab table
 write.table(tidyData, file = "tidyData.txt", sep = "\t")
 
+## dump SessionInfo to markdown
+pander(sessionInfo(), compact = FALSE)
