@@ -16,3 +16,4 @@ Files
 * [CodeBook.md](/CodeBook.md), the codebook which the process
 * [run_analysis.R](/run_analysis.R), the R file executes the process
 * [tidyData.txt](/tidyData.txt), the final dataset in a tab-delimited text file
+* [sessionInfo.md](/sessionInfo.md), documents the information of the R session in which the analysis took place
