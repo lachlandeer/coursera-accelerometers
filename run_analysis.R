@@ -69,7 +69,7 @@ if(!file.exists("./allData.rds")) {
     saveRDS(allData, "allData.rds")
     
     # clean up the workspace
-    rm(testData, trainData, featureNames, dataName, fileNames, iType, validNames, folder)
+    rm(testData, trainData, featureNames, dataName, fileNames, iType, folder)
 }
 
 ## 2. ##
@@ -101,3 +101,26 @@ meanAndStd <- meanAndStd  %>%
     arrange(subject, activity)
 
 saveRDS(meanAndStd, "meanAndStd.rds")
+
+## Generate final Data set
+
+tidyData <- meanAndStd %>%
+                group_by(subject, activity) %>%
+                summarize_all(.funs= c(Mean="mean"))
+
+saveRDS(tidyData, "tidyData.rds")
+
+
+tidyData <- readRDS("tidyData.rds")
+
+# rename columns until happy
+names(tidyData) <- gsub("\\(|\\)", "", names(tidyData))
+names(tidyData) <- gsub("_", "-", names(tidyData))
+
+names(tidyData) <- gsub("acc", "-accelerator-", names(tidyData))
+names(tidyData) <- gsub("mag", "-magnitude-", names(tidyData))
+names(tidyData) <- gsub('gyrojerk',"-angularAccel-",names(tidyData))
+names(tidyData) <- gsub('gyro',"-AngularSpeed-",names(tidyData))
+names(tidyData) <- gsub("^t", "time-", names(tidyData))
+names(tidyData) <- gsub("^f", "frequency-", names(tidyData))
+names(tidyData) <- gsub("--", "-", names(tidyData))
