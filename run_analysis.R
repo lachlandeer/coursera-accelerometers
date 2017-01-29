@@ -1,5 +1,7 @@
 #=
-#   Final Assignment for Getting and Cleaning Data    
+#   Final Assignment for Getting and Cleaning Data 
+# 
+# contact author: @ldeer
 #=
 
 ## Load required libraries
@@ -9,11 +11,12 @@ library(readr)
 
 
 ## 0. Download the data ##
-##   Creates directory, downloads data and unzips if its not in the repo
+##   Creates directories, downloads data and unzips if its not in the repo
 
 if(!dir.exists("./data")){
     dir.create("./data")
 }
+
 
 if(!file.exists("./data/rawData.zip")){
     fileURL <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
@@ -24,9 +27,9 @@ if(!file.exists("./data/rawData.zip")){
     rm(fileURL)
 }
 
-## 1.  ##
+## 1. Merge Training and Test Data  ##
 
-# if merged data doesnt exist, create and write to disk, create it and load
+## if merged data doesnt exist, create and write to disk
 if(!file.exists("./allData.rds")) {
     
     for (iType in c('test','train')){
@@ -72,14 +75,14 @@ if(!file.exists("./allData.rds")) {
     rm(testData, trainData, featureNames, dataName, fileNames, iType, folder)
 }
 
-## 2. ##
+## 2. Extract Only Means and Std Deviations ##
 
 ## load data if you have removed it
 if(!exists("allData")) {
     allData <- readRDS("allData.rds")
 }
 
-# select colums of means and stds
+## select colums of means and stds
 
 meanAndStd <- allData %>% 
     # remove duplicated columns by name
@@ -88,13 +91,13 @@ meanAndStd <- allData %>%
     select( subject, activityID, matches("mean\\(\\)|std\\(\\)")) 
 
 
-# Load activity labels + features
+## 3. Load activity labels + Merge to data ##
 activityLabels  <- read.table("./data/UCI HAR Dataset/activity_labels.txt")
 names(activityLabels)    <- c("activityID", "activity")
 
 meanAndStd <- merge(meanAndStd, activityLabels, by="activityID")
 
-##
+## clean up
 meanAndStd <- meanAndStd  %>%
     select(subject, activity, everything()) %>%
     select(-activityID) %>%
@@ -102,25 +105,27 @@ meanAndStd <- meanAndStd  %>%
 
 saveRDS(meanAndStd, "meanAndStd.rds")
 
-## Generate final Data set
+## 4. Rename Variables
+
+# rename columns until happy
+names(meanAndStd) <- gsub("\\(|\\)", "", names(meanAndStd))
+
+names(meanAndStd) <- gsub("acc", "-accelerator-", names(meanAndStd))
+names(meanAndStd) <- gsub("mag", "-magnitude-", names(meanAndStd))
+names(meanAndStd) <- gsub('gyrojerk',"-angularAccel-",names(meanAndStd))
+names(meanAndStd) <- gsub('gyro',"-AngularSpeed-",names(meanAndStd))
+names(meanAndStd) <- gsub("^t", "time-", names(meanAndStd))
+names(meanAndStd) <- gsub("^f", "frequency-", names(meanAndStd))
+names(meanAndStd) <- gsub("--", "-", names(meanAndStd))
+
+## 5. Generate final Data set
 
 tidyData <- meanAndStd %>%
                 group_by(subject, activity) %>%
                 summarize_all(.funs= c(Mean="mean"))
-
-saveRDS(tidyData, "tidyData.rds")
-
-
-tidyData <- readRDS("tidyData.rds")
-
-# rename columns until happy
-names(tidyData) <- gsub("\\(|\\)", "", names(tidyData))
 names(tidyData) <- gsub("_", "-", names(tidyData))
 
-names(tidyData) <- gsub("acc", "-accelerator-", names(tidyData))
-names(tidyData) <- gsub("mag", "-magnitude-", names(tidyData))
-names(tidyData) <- gsub('gyrojerk',"-angularAccel-",names(tidyData))
-names(tidyData) <- gsub('gyro',"-AngularSpeed-",names(tidyData))
-names(tidyData) <- gsub("^t", "time-", names(tidyData))
-names(tidyData) <- gsub("^f", "frequency-", names(tidyData))
-names(tidyData) <- gsub("--", "-", names(tidyData))
+
+# export as tab table
+write.table(tidyData, file = "tidyData.txt", sep = "\t")
+
